@@ -1,0 +1,290 @@
+---
+project_name:
+  type: input
+  message: Choose a base name for this project
+  default: Base Project
+project_slug:
+  type: input
+  message: Choose a project slug
+  default: "{{ nuki.project_name|lower|replace(' ', '-') }}"
+
+domain_main:
+  type: input
+  message: Enter a domain name if different from the project slug
+  default: "{{nuki.project_slug}}"
+domain_staging:
+  type: input
+  message: Enter a domain for staging
+  default: stag.{{nuki.domain_main}}
+
+ssh_key_name:
+  type: input
+  message: Enter a name for a new sshkey to log in to your instance
+  default: mykey
+
+# docker swarm
+docker_swarm_setup:
+  type: confirm
+  message: Do you want to customize docker swarm
+
+docker_swarm_stack_name_main:
+  when: "{{ nuki.docker_swarm_setup }}"
+  type: input
+  message: Enter a name for the docker swarm
+  default: "{{nuki.domain_main|replace('.', '-')}}"
+docker_swarm_stack_name_staging:
+  when: "{{ nuki.docker_swarm_setup  }}"
+  type: input
+  message: Enter a name for the docker swarm staging
+  default: "{{ nuki.domain_staging | replace('.', '-') }}"
+
+secret_key:
+  type: input
+  message: Enter a value for the secret key for this project
+  default: changethis
+first_superuser:
+  type: input
+  message: Enter the name of the super user for the site
+  default: "admin@{{nuki.domain_main}}"
+first_superuser_password:
+  type: input
+  message: Enter a password for this super user
+  default: changethis
+
+backend_cors_origins:
+  type: stat
+  input: '["http://localhost", "http://localhost:4200", "http://localhost:3000",
+  "http://localhost:8080", "https://localhost", "https://localhost:4200", "https://localhost:3000",
+  "https://localhost:8080", "http://dev.{{nuki.domain_main}}", "https://{{nuki.domain_staging}}",
+  "https://{{nuki.domain_main}}", "http://local.dockertoolbox.tiangolo.com",
+  "http://localhost.tiangolo.com"]'
+
+# email settings
+setup_email:
+  type: confirm
+  message: Do you want to set up email w/ an smtp server?
+
+smtp_port:
+  when: "{{ nuki.setup_email }}"
+  type: input
+  message: Enter a port for stmp
+  default: '587'
+smtp_host:
+  when: "{{ nuki.setup_email  }}"
+  type: input
+  message: Enter a host for stmp
+  default: ''
+smtp_user:
+  when: "{{ nuki.setup_email }}"
+  type: input
+  message: Enter a user for stmp
+  default: ''
+smtp_password:
+  when: "{{ nuki.setup_email }}"
+  type: input
+  message: What to set
+  default: ''
+smtp_emails_from_email:
+  when: "{{ nuki.setup_email }}"
+  type: input
+  message: Enter a default email to deliver from
+  default: "info@{{nuki.domain_main}}"
+
+# postgres setup
+postgres_password:
+  type: input
+  message: Enter a password for postgres
+  default: changethis
+pgadmin_default_user:
+  type: input
+  message: Enter a user for pgadmin
+  default: "{{nuki.first_superuser}}"
+pgadmin_default_user_password:
+  type: input
+  message: Enter a password for pgadmin
+  default: "{{nuki.first_superuser_password}}"
+
+# traffic setup
+traefik_constraint_tag:
+  type: input
+  message: Enter a traefik constraint tag
+  default: "{{nuki.domain_main}}"
+traefik_constraint_tag_staging:
+  type: input
+  message: Enter a domain for traefik staging
+  default: "{{nuki.domain_staging}}"
+traefik_public_constraint_tag:
+  type: input
+  message: Enter a public tag for traefik
+  default: traefik-public
+
+flower_auth:
+  type: input
+  message: Enter a flower admin and password in the form 'user:password'
+  default: "admin:{{nuki.first_superuser_password}}"
+
+sentry_dsn:
+  type: input
+  message: Enter dsn for sentry, example is default, you can set up a free account
+  default: https://1234abcd:5678ef@sentry.example.com/30
+
+#########################################################
+# docker prefixes, first option is a select to ignore.
+docker_prefixes:
+  type: confirm
+  message: Do you want to attach any prefixes to your docker images?
+docker_image_prefix:
+  when: "{{ nuki.docker_prefixes > 0}}"
+  type: input
+  message: Enter prefix for docker image
+docker_image_backend:
+  when: "{{ nuki.docker_prefixes > 0 }}"
+  type: input
+  message: Enter prefix for docker image backend
+  default: "{{nuki.docker_image_prefix}}backend"
+docker_image_celeryworker:
+  when: "{{ nuki.docker_prefixes > 0 }}"
+  type: input
+  message: Enter prefix for celery worker
+  default: "{{nuki.docker_image_prefix}}celeryworker"
+docker_image_frontend:
+  when: "{{ nuki.docker_prefixes > 0 }}"
+  type: input
+  message: Enter Prefix for docker image frontend
+  default: "{{nuki.docker_image_prefix}}frontend"
+###########################################################
+
+_copy_without_render:
+  - frontend/src/**/*.html
+  - frontend/src/**/*.vue
+  - frontend/node_modules/*
+  - backend/app/app/email-templates/**
+
+aws_region:
+  type: input
+  message: What AWS region?
+  default: us-west-2
+############################################################3
+# optional set up eks
+setup_eks:
+  type: confirm
+  message: Do you want to set up an EKS cluster?
+eks_cluster_name:
+  when: "{{ nuki.setup_eks }}"
+  type: input
+  message: What do you want to name your eks cluster?
+  default: mycluster
+eks_num_workers:
+  when: "{{ nuki.setup_eks }}"
+  type: input
+  message: Number of workers on cluster?
+  default: '1'
+eks_cluster_autoscale:
+  when: "{{ nuki.setup_eks }}"
+  type: input
+  message: Autoscale workers? Enter either true or false
+  default: 'false'
+eks_cluster_autoscale_min_workers:
+  when: "{{ nuki.setup_eks }}"
+  type: input
+  message: Enter minimum number of workers
+  default: '1'
+eks_cluster_autoscale_max_workers:
+  when: "{{ nuki.setup_eks }}"
+  type: input
+  message: Enter maximum number of workers
+  default: '1'
+############################################# end eks setup
+
+# aws network setup
+
+aws_network_setup:
+  type: confirm
+  message: Do you want to set up or connect to existing AWS infrastructure?
+  default: false
+
+vpc_name:
+  when: "{{ nuki.aws_network_setup }}"
+  type: input
+  message: Enter name of VPC otherwise leave blank for none
+  default: ""
+
+azs:
+  when: "{{ nuki.aws_network_setup }}"
+  type: input
+  message: Number of azs
+  default: '1'
+
+num_azs:
+  when: "{{ nuki.aws_network_setup }}"
+  type: input
+  message: Again number of azs, this needs to be worded better
+  default: '1'
+iam_instance_profile:
+  when: "{{ nuki.aws_network_setup }}"
+  type: input
+  message: iam_instance_profile to use
+network_name:
+  when: "{{ nuki.aws_network_setup }}"
+  type: input
+  message: Network name
+create_sg:
+  when: "{{ nuki.aws_network_setup }}"
+  type: input
+  message: Create a security group?
+  default: 'false'
+create:
+  when: "{{ nuki.aws_network_setup }}"
+  type: input
+  message: Create a deployment
+  default: 'true'
+create_ebs_volume:
+  when: "{{ nuki.aws_network_setup }}"
+  type: input
+  message: Create an EBS volume for this deployment (enter true or false)
+  default: 'false'
+
+render:
+  type: nukikata
+  context_file: nukikata.yaml
+  context_key: cookiecutter
+  existing_context: "{{ nuki }}"
+  no_input: true
+  output_dir: "{{ calling_directory }}"
+
+post_render_action_:
+  type: checkbox
+  message: What do you want to do next?
+  choices:
+    - deploy: Deploy the instance?
+
+prompt_user_to_enter_ssh_keys:
+  type: confirm
+  message: Confirm if you're ready to create new ssh keys
+
+generate_ssh_keys_:
+  when: "{{ nuki.prompt_user_to_enter_ssh_keys and nuki.ssh_key_name  }}"
+  type: command
+  message: creating ssh keys
+  chdir: "{{ nuki._output_dir }}/{{ nuki.project_slug }}"
+  command: |
+    ssh-keygen -t rsa -f {{ nuki.ssh_key_name }} -q -N ''
+
+
+init_terraform_single_:
+  type: command
+  chdir: "{{ nuki._output_dir }}/{{ nuki.project_slug }}"
+  command: |
+    sleep 1
+    cp {{ nuki.ssh_key_name}}* terraform_single_instance/
+    cd terraform_single_instance
+    terraform init
+
+init_terraform_cluster_:
+  type: command
+  chdir: "{{ nuki._output_dir }}/{{ nuki.project_slug }}"
+  command: |
+    sleep 1
+    cp {{ nuki.ssh_key_name}}* terraform_managed_cluster/
+    cd terraform_managed_cluster/
+    terraform init
