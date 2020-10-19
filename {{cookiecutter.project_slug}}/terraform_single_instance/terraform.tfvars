@@ -11,4 +11,5 @@ create = {{cookiecutter.create}}
 create_ebs_volume = {{cookiecutter.create_ebs_volume}}
 domain_name = "{{cookiecutter.domain_main}}"
 hostname = ""
+code_folder = "{{cookiecutter.project_slug}}"
 

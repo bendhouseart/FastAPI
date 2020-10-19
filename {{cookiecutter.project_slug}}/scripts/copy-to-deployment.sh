@@ -5,7 +5,8 @@ declare -A exclude_list=()
 count=0
 while read line;
 do 
-  if [[ $line != ""   &&  $line != ".env" && $line != "#"*  ]]; then
+  #if [[ $line != ""   &&  $line != ".env" && $line != "#"*  ]]; then
+  if [[ $line != ""  && $line != "#"*  ]]; then
    echo ${line}
    exclude_list[$count]=$line
    ((count+=1))

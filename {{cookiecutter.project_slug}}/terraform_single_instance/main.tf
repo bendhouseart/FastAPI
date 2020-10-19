@@ -22,6 +22,24 @@ locals {
   logging_bucket_name = var.logging_bucket_name == "" ? "logs-${data.aws_caller_identity.this.account_id}" : var.logging_bucket_name
 }
 
+// creating elastic ip
+resource "aws_eip" "eip_manager" {
+  instance = aws_instance.this.id
+  vpc = true
+
+  lifecycle {
+    prevent_destroy = false
+  }
+
+}
+
+resource "aws_eip_association" "eip_assoc" {
+  instance_id = aws_instance.this.id
+  allocation_id = aws_eip.eip_manager.id
+}
+
+
+
 resource "aws_instance" "this" {
   //count         = var.create ? 1 : 0
   ami           = module.ami.ubuntu_1804_ami_id
@@ -31,7 +49,8 @@ resource "aws_instance" "this" {
   iam_instance_profile = var.iam_instance_profile
   key_name             = var.public_key_path == "" ? var.key_name : aws_key_pair.this.*.key_name[0]
   security_groups = [
-    aws_security_group.ssh.name
+    aws_security_group.ssh.name,
+    aws_security_group.http.name
   ]
   root_block_device {
     volume_size = var.root_volume_size
@@ -59,6 +78,12 @@ resource "aws_instance" "this" {
   // run user data
   user_data = file("scripts/user-data.sh")
   tags = merge({ name = var.name }, local.tags)
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo docker-compose -f /home/ubuntu/${var.code_folder} up"
+    ]
+  }
 
 }
 
@@ -92,13 +117,7 @@ variable "hostname" {
 //  value=aws_route53_zone.launch_with_click.name_servers
 //}
 
-output "public_dns" {
-  value = aws_instance.this.public_dns
-}
 
-output "public_ip" {
-  value = aws_instance.this.public_ip
-}
 
 //output "associated_ip" {
 //  value = aws_instance.this[count.index].associate_public_ip_address

@@ -30,6 +30,25 @@ resource "aws_security_group" "ssh" {
 
 }
 
+resource "aws_security_group" "http" {
+  vpc_id = var.vpc_id == "" ? null : var.vpc_id
+
+  egress {
+    from_port = 0
+    protocol = "-1"
+    to_port = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 80
+    protocol = "tcp"
+    to_port = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+}
+
 resource "aws_security_group_rule" "public_ports" {
   count = var.create_sg && var.create ? length(var.public_ports) : 0
 

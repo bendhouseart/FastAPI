@@ -112,6 +112,11 @@ variable "additional_security_group_ids" {
 #####
 # ec2
 #####
+variable "code_folder" {
+  type = string
+  default = ""
+}
+
 variable "key_name" {
   description = "The key pair to import - leave blank to generate new keypair from pub/priv ssh key path"
   type        = string
