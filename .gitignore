@@ -1,2 +1,3 @@
-Pipfile
+{{cookiecutter.project_slug}}/Pipfile
 Pipfile.lock
+.idea

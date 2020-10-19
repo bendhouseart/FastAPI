@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: app.dockerfile
     ports:
-      - "8000:8000"
+      - "0.0.0.0:80:80"
   db:
     image: postgres
     env_file:

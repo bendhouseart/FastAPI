@@ -16,7 +16,7 @@ sudo chmod +x /usr/local/bin/docker-compose >>$logfile 2>&1
 sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose  >>$logfile 2>&1
 
 echo "User data ran." >> $logfile 2>&1
-pushd "/home/ubuntu/deployments/base-project"
+pushd "/home/ubuntu/{{cookiecutter.project_slug}}"
 docker-compose up
 
 

@@ -31,7 +31,7 @@ variable "iam_instance_profile" {
 variable "name" {
   description = "The name for the label"
   type        = string
-  default     = "prep"
+  default     = "single-instance"
 }
 
 variable "tags" {
